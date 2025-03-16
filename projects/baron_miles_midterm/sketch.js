@@ -140,8 +140,8 @@ function draw() {
           for(let m = 0; m < tempCoolPose.allpoints.length; m++) {
             let tempCoolKeypoint = tempCoolPose.allpoints[m]
             
-            // check the distance. The distance is 60, but you can change it to whatever you want.
-            if(p5.Vector.dist(anchorCoolKeypoint.pos, tempCoolKeypoint.pos) < 60) {
+            // check the distance. The distance is 80, but you can change it to whatever you want.
+            if(p5.Vector.dist(anchorCoolKeypoint.pos, tempCoolKeypoint.pos) < 80) {
               
               anchorCoolKeypoint.touched = true;
               tempCoolKeypoint.touched = true;
@@ -160,7 +160,7 @@ function draw() {
   
   // HOME STRETCH, DRAW THE SHAPES
   for(let coolPose of coolPoses) {
-    for(connection of ALL_CONNECTIONS) {
+    for(let connection of ALL_CONNECTIONS) {
       beginShape();
       for(let i = 0; i < connection.length; i++) {
         let keypoint = coolPose.allpoints[connection[i]];
@@ -179,6 +179,10 @@ function draw() {
 
 function debugDrawKeypoints(coolPose) {
   for(let coolPose of coolPoses) {
+    fill(0, 0, 100)
+    textSize(40)
+    text("id: " + coolPose.id, coolPose.allpoints[0].pos.x - 15, coolPose.allpoints[0].pos.y - 30)
+    
     for(let i = 0; i < coolPose.allpoints.length; i++) {
       let ckp = coolPose.allpoints[i];
       
