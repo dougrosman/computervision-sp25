@@ -78,26 +78,27 @@ function draw() {
   
   // WE NOW HAVE ALL THE COOLPOSES WITH ALL OF THEIR KEYPOINTS AND MIDPOINTS, SO WE CAN CHECK ALL THE DISTANCES WITH OUR 4X NESTED FOR-LOOP MESS
   
-  
+  // loop through all the coolPoses...
   for(let i = 0; i < coolPoses.length; i++) {
     let coolPose = coolPoses[i]
     
+    // loop through all the coolPoses again, except for the current one
     for(let j = 0; j < coolPoses.length; j++) {
       if(i != j) {
         let tempCoolPose = coolPoses[j];
         
+        // loop through all the keypoints in the current coolPose
         for(let k = 0; k < coolPose.allpoints.length; k++) {
           let anchorCoolKeypoint = coolPose.allpoints[k]
           
+          // loop through all the keypoints in the other coolPose, checking the distance between the anchor keypoint and the other keypoints
           for(let m = 0; m < tempCoolPose.allpoints.length; m++) {
             let tempCoolKeypoint = tempCoolPose.allpoints[m]
             
-            
+            // check the distance
             if(p5.Vector.dist(anchorCoolKeypoint.pos, tempCoolKeypoint.pos) < 40 && anchorCoolKeypoint.touched == false) {
               anchorCoolKeypoint.touched = true;
               tempCoolKeypoint.touched = true;
-            } else {
-              //anchorCoolKeypoint.touched = false;
             }
           }
         }
@@ -124,6 +125,8 @@ function draw() {
       circle(ckp.pos.x, ckp.pos.y, 10);
     }
   }
+
+  // draw the meshes
   
   
       
