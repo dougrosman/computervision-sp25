@@ -3,6 +3,6 @@ class coolPose {
     this.keypoints = kp;
     this.midpoints = mp;
     this.allpoints = [];
-    this.allpoints.push(...this.keypoints,...this.midpoints) // find out how to actually do this.
+    this.allpoints.push(...this.keypoints,...this.midpoints)
   }
 }
