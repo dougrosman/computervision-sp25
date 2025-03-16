@@ -21,7 +21,7 @@ let coolPoses = [];
 // 23 - legthis1
 // 24 - legthis2
 
-// create arrays of connections for each part of the body that you need to draw a shape for
+// create arrays of connections for each part of the body that you need to draw a shape for. These were created by hand based on the shapes you both made in class a few weeks ago.
 const upperArmRightConnections = [6, 17, 8]
 const upperArmLeftConnections = [5, 20, 7]
 
@@ -103,39 +103,41 @@ function draw() {
     // get all the original keypoints and push them into pose.keypoints
     for (let j = 0; j < pose.keypoints.length; j++) {
       let anchorKeypoint = pose.keypoints[j];
-      coolKeypoints.push(new coolKeypoint(createVector(anchorKeypoint.x, anchorKeypoint.y)))      
+      coolKeypoints.push(new coolKeypoint(createVector(anchorKeypoint.x, anchorKeypoint.y), pose.id))      
     }
 
     // get all the midpoints and store them in an array called "coolKeypointsMid"
     let coolKeypointsMid = createMidpoints(pose)
 
-
-    coolPoses.push(new coolPose(coolKeypoints, coolKeypointsMid))
+    coolPoses.push(new coolPose(coolKeypoints, coolKeypointsMid, pose.id))
   }
 
   // this function reorders the coolPoses array from left to right, so that the first pose in the array the one on the left, and the last pose is the one on the right, and so on. This makes sure that the colors don't flicker constantly.
   
   // comment this out to see what happens if you don't reorder the poses
-  reorderPoses();
+  //reorderPoses();
 
   // set the fill color of the keypoints based on the index of the coolPose
   // THIS IS WHERE YOU CAN PROVIDE YOUR OWN COLOR SCHEME
   for(let i = 0; i < coolPoses.length; i++) {
     let coolPose = coolPoses[i]
     for(let j = 0; j < coolPose.allpoints.length; j++) {
-      if(i == 0) {
-        coolPose.allpoints[j].fillColor = color(0, 70, 100)
-      } else if(i == 1) {
-        coolPose.allpoints[j].fillColor = color(60, 70, 100)
-      } else if(i == 2) {
-        coolPose.allpoints[j].fillColor = color(120, 70, 100)
-      } else if(i == 3) {
-        coolPose.allpoints[j].fillColor = color(180, 70, 100)
-      } else if(i == 4) {
-        coolPose.allpoints[j].fillColor = color(240, 70, 100)
-      } else if(i == 5) {
-        coolPose.allpoints[j].fillColor = color(300, 70, 100)
-      }
+      // coolPose.allpoints[j].baseColor = coolPose.poseColor;
+      //coolPose.allpoints[j].fillColor = coolPose.allpoints[j].baseColor;
+
+      // if(i == 0) {
+      //   coolPose.allpoints[j].fillColor = color(0, 70, 100)
+      // } else if(i == 1) {
+      //   coolPose.allpoints[j].fillColor = color(60, 70, 100)
+      // } else if(i == 2) {
+      //   coolPose.allpoints[j].fillColor = color(120, 70, 100)
+      // } else if(i == 3) {
+      //   coolPose.allpoints[j].fillColor = color(180, 70, 100)
+      // } else if(i == 4) {
+      //   coolPose.allpoints[j].fillColor = color(240, 70, 100)
+      // } else if(i == 5) {
+      //   coolPose.allpoints[j].fillColor = color(300, 70, 100)
+      // }
     }
   }
   
@@ -167,7 +169,7 @@ function draw() {
               tempCoolKeypoint.touched = true;
               
               // lerp the colors of the anchor keypoint and the temp keypoint
-              let lerpedColor = lerpColor(anchorCoolKeypoint.fillColor, tempCoolKeypoint.fillColor, 0.5);
+              let lerpedColor = lerpColor(anchorCoolKeypoint.baseColor, tempCoolKeypoint.baseColor, 0.5);
               anchorCoolKeypoint.fillColor = lerpedColor;
               tempCoolKeypoint.fillColor = lerpedColor;
             }
@@ -184,15 +186,14 @@ function draw() {
       beginShape();
       for(let i = 0; i < connection.length; i++) {
         let keypoint = coolPose.allpoints[connection[i]];
-        // if(keypoint.touched) {
-        //   fill(keypoint.fillColor)
-        // } else {
-        //   fill(keypoint.fillColor)
-        // }
-        fill(keypoint.fillColor)
+        if(keypoint.touched) {
+          fill(keypoint.fillColor)
+        } else {
+          fill(keypoint.baseColor)
+        }
         vertex(keypoint.pos.x, keypoint.pos.y);
       }
-      endShape();
+      endShape(CLOSE);
     }
   }
 
@@ -291,7 +292,7 @@ function gotPoses(results) {
 function keyPressed() {
   if (key == " ") {
     for (let i = 0; i < poses.length; i++) {
-      let pose = poses[i];
+      let pose = coolPoses[i];
       console.log(pose);
     }
   }

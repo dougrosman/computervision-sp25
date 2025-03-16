@@ -2,6 +2,7 @@ class coolKeypoint {
   constructor(posVector) {
     this.pos = posVector
     this.touched = false;
-    this.fillColor = color(255, 255, 255)
+    this.baseColor = color(0, 0, 100);
+    this.fillColor = this.baseColor;
   }
 }
