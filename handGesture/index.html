@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>p5.js Gesture Recognition</title>
+    <script src="https://cdn.jsdelivr.net/npm/p5"></script>
+    <script type="module">
+        import {
+            GestureRecognizer,
+            FilesetResolver
+        } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest";
+
+        let video;
+        let gestureRecognizer;
+        let gestureOutput = "No Gesture Detected";
+        let handLandmarks = [];
+
+        async function setupCamera() {
+            video = createCapture(VIDEO);
+            video.size(640, 480);
+            video.hide();
+            await video.elt.play();
+        }
+
+        async function loadGestureRecognizer() {
+            const vision = await FilesetResolver.forVisionTasks(
+                "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+            );
+
+            gestureRecognizer = await GestureRecognizer.createFromOptions(vision, {
+                baseOptions: {
+                    modelAssetPath: "https://storage.googleapis.com/mediapipe-tasks/gesture_recognizer/gesture_recognizer.task",
+                    delegate: "GPU"  // Enables GPU acceleration
+                },
+                numHands: 2,
+                runningMode: "video",
+                minHandDetectionConfidence: 0.5,
+                minHandPresenceConfidence: 0.5,
+                minTrackingConfidence: 0.5,
+            });
+        }
+
+        function processResult(results) {
+            if (results.gestures.length > 0) {
+                gestureOutput = results.gestures[0][0].categoryName;
+            } else {
+                gestureOutput = "No Gesture Detected";
+            }
+
+            handLandmarks = results.landmarks || [];
+        }
+
+        function drawHandLandmarks() {
+            for (let hand of handLandmarks) {
+                stroke(255, 0, 0);
+                strokeWeight(4);
+                fill(255, 0, 0);
+
+                for (let point of hand) {
+                    let x = point.x * width;
+                    let y = point.y * height;
+                    ellipse(x, y, 8, 8);
+                }
+            }
+        }
+
+        function renderLoop() {
+            if (gestureRecognizer && video) {
+                const results = gestureRecognizer.recognizeForVideo(video.elt, performance.now());
+                processResult(results);
+            }
+            requestAnimationFrame(renderLoop);
+        }
+
+        window.setup = async function() {
+            createCanvas(640, 480);
+            await setupCamera();
+            await loadGestureRecognizer();
+            renderLoop();
+        };
+
+        window.draw = function() {
+            background(0);
+            image(video, 0, 0, width, height);
+            drawHandLandmarks();
+
+            fill(255);
+            textSize(24);
+            textAlign(CENTER, CENTER);
+            text(gestureOutput, width / 2, height - 30);
+        };
+    </script>
+</head>
+<body></body>
+</html>

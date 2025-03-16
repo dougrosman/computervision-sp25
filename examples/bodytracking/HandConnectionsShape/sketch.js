@@ -36,7 +36,7 @@ function startVideo() {
 }
 
 function setup() {
-  createCanvas(video.width, video.height);
+  createCanvas(windowWidth, windowHeight);
   video.hide();
 
   // Start detecting poses in the webcam video
@@ -119,4 +119,8 @@ function keyPressed() {
       console.log(pose)
     }
   }
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight)
 }
