@@ -159,6 +159,8 @@ function draw() {
   
   
   // HOME STRETCH, DRAW THE SHAPES
+  
+  //noStroke();
   for(let coolPose of coolPoses) {
     for(let connection of ALL_CONNECTIONS) {
       beginShape();
