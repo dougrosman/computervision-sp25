@@ -2,6 +2,7 @@ let midpoints = [];
 let allPoints = [];
 
 let video;
+let capture;
 let bodyPose;
 let poses = [];
 let connections;
@@ -63,23 +64,28 @@ function preload() {
   // Load the bodyPose model
   bodyPose = ml5.bodyPose("MoveNet", options);
   font = loadFont("Arial.ttf")
-  // change this to "five.mp4" to see a video with 5 people
+  // change this to "five.mp4" or "six.mp4" to see a video with 5 or 6 people
   video = createVideo("five.mp4")
 }
 
 function setup() {
   createCanvas(w, h, WEBGL);
-  //video = createCapture(VIDEO, { flipped: true });
+
+  capture = createCapture(VIDEO, { flipped: true });
+  capture.size(w, h);
+  capture.hide();
+
+  // comment out this stuff if you want to use the capture instead of the video
   video.size(w, h);
-  //video.play();
   video.volume(0);
   video.loop();
   video.hide();
-  textFont(font)
 
+  textFont(font)
   // Start detecting poses in the webcam video
   bodyPose.detectStart(video, gotPoses);
 
+  // HSB color has much more satisfying lerps than RGB color
   colorMode(HSB);
 }
 
@@ -109,36 +115,8 @@ function draw() {
     // get all the midpoints and store them in an array called "coolKeypointsMid"
     let coolKeypointsMid = createMidpoints(pose)
 
+    // the base color of each pase is set based on the "id" of the pose. The "id" is a way to identify each pose so that each pose can remain consistent as the sketch runs. If the detector stops detecting your pose momentarily, it will assign a new id to it next time it detects it, and the color will change.
     coolPoses.push(new coolPose(coolKeypoints, coolKeypointsMid, pose.id))
-  }
-
-  // this function reorders the coolPoses array from left to right, so that the first pose in the array the one on the left, and the last pose is the one on the right, and so on. This makes sure that the colors don't flicker constantly.
-  
-  // comment this out to see what happens if you don't reorder the poses
-  //reorderPoses();
-
-  // set the fill color of the keypoints based on the index of the coolPose
-  // THIS IS WHERE YOU CAN PROVIDE YOUR OWN COLOR SCHEME
-  for(let i = 0; i < coolPoses.length; i++) {
-    let coolPose = coolPoses[i]
-    for(let j = 0; j < coolPose.allpoints.length; j++) {
-      // coolPose.allpoints[j].baseColor = coolPose.poseColor;
-      //coolPose.allpoints[j].fillColor = coolPose.allpoints[j].baseColor;
-
-      // if(i == 0) {
-      //   coolPose.allpoints[j].fillColor = color(0, 70, 100)
-      // } else if(i == 1) {
-      //   coolPose.allpoints[j].fillColor = color(60, 70, 100)
-      // } else if(i == 2) {
-      //   coolPose.allpoints[j].fillColor = color(120, 70, 100)
-      // } else if(i == 3) {
-      //   coolPose.allpoints[j].fillColor = color(180, 70, 100)
-      // } else if(i == 4) {
-      //   coolPose.allpoints[j].fillColor = color(240, 70, 100)
-      // } else if(i == 5) {
-      //   coolPose.allpoints[j].fillColor = color(300, 70, 100)
-      // }
-    }
   }
   
   // WE NOW HAVE ALL THE COOLPOSES WITH ALL OF THEIR KEYPOINTS AND MIDPOINTS, SO WE CAN CHECK ALL THE DISTANCES BETWEEN THEM WITH OUR 4X NESTED FOR-LOOP MESS TO SEE WHICH KEYPOINTS ARE TOUCHING WHICH OTHER KEYPOINTS
@@ -169,7 +147,7 @@ function draw() {
               tempCoolKeypoint.touched = true;
               
               // lerp the colors of the anchor keypoint and the temp keypoint
-              let lerpedColor = lerpColor(anchorCoolKeypoint.baseColor, tempCoolKeypoint.baseColor, 0.5);
+              let lerpedColor = lerpColor(anchorCoolKeypoint.fillColor, tempCoolKeypoint.fillColor, 0.5);
               anchorCoolKeypoint.fillColor = lerpedColor;
               tempCoolKeypoint.fillColor = lerpedColor;
             }
@@ -180,17 +158,13 @@ function draw() {
   }
   
   
-
+  // HOME STRETCH, DRAW THE SHAPES
   for(let coolPose of coolPoses) {
     for(connection of ALL_CONNECTIONS) {
       beginShape();
       for(let i = 0; i < connection.length; i++) {
         let keypoint = coolPose.allpoints[connection[i]];
-        if(keypoint.touched) {
-          fill(keypoint.fillColor)
-        } else {
-          fill(keypoint.baseColor)
-        }
+        fill(keypoint.fillColor)
         vertex(keypoint.pos.x, keypoint.pos.y);
       }
       endShape(CLOSE);
@@ -199,7 +173,8 @@ function draw() {
 
   // we've got the distance calc stuff, let's see if it's working by drawing the keypoints and changing color based on touched
 
-  // debugDrawKeypoints();
+  // comment this out to stop drawing the keypoints
+  debugDrawKeypoints();
 }
 
 function debugDrawKeypoints(coolPose) {
@@ -208,9 +183,9 @@ function debugDrawKeypoints(coolPose) {
       let ckp = coolPose.allpoints[i];
       
       if(ckp.touched) {
-        fill(ckp.fillColor)
+        fill(color(0, 100, 100))
       } else {
-        fill(255, 255, 255);
+        fill(color(0, 0, 100))
       }
       circle(ckp.pos.x, ckp.pos.y, 10);
     }
